@@ -41,9 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompareToExtension.cs" />
-    <Compile Include="Comparison.cs" />
+    <Compile Include="ComparisonEngine.cs" />
+    <Compile Include="Models\Comparison.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyComparison.cs" />
+    <Compile Include="Models\Difference.cs" />
+    <Compile Include="PropertyComparers\ClassComparer.cs" />
+    <Compile Include="PropertyComparers\IComparableComparer.cs" />
+    <Compile Include="PropertyComparers\IPropertyComparerc.cs" />
+    <Compile Include="PropertyComparers\ValueTypeComparer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
