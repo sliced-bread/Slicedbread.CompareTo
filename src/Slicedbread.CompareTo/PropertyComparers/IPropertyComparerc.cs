@@ -7,6 +7,6 @@
     public interface IPropertyComparer
     {
         bool CanCompare(PropertyInfo property);
-        IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject);
+        IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject, IList<PropertyInfo> ignoreList);
     }
 }

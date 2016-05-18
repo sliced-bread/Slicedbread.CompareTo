@@ -1,6 +1,7 @@
-﻿namespace Slicedbread.CompareTo
+﻿namespace Slicedbread.CompareTo.Engine
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Models;
@@ -14,12 +15,12 @@
             new ClassComparer(),
         };
 
-        public Comparison CompareTo<T>(T originalObject, T newObject)
+        public Comparison Compare<T>(T originalObject, T newObject, IList<PropertyInfo> ignoreList = null)
         {
-            return CompareTo(typeof(T), originalObject, newObject);
+            return Compare(typeof(T), originalObject, newObject, ignoreList);
         }
 
-        public Comparison CompareTo(Type type, object originalObject, object newObject)
+        public Comparison Compare(Type type, object originalObject, object newObject, IList<PropertyInfo> ignoreList = null)
         {
             var result = new Comparison();
 
@@ -27,12 +28,15 @@
 
             foreach (var property in properties)
             {
+                if (ignoreList != null && ignoreList.Contains(property))
+                    continue;
+
                 if (!property.CanRead)
                     continue;
 
                 var comparer = PropertyComparers.FirstOrDefault(c => c.CanCompare(property));
                 if (comparer != null)
-                    result.AddRange(comparer.Compare(property, originalObject, newObject));
+                    result.AddRange(comparer.Compare(property, originalObject, newObject, ignoreList));
             }
 
             return result;

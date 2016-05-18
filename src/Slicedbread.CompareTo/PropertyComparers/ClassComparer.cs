@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Reflection;
+    using Engine;
     using Models;
 
     public class ClassComparer : IPropertyComparer
@@ -11,20 +12,20 @@
             return property.PropertyType.IsClass;
         }
 
-        public IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject)
+        public IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject, IList<PropertyInfo> ignoreList)
         {
             var comparisonEngine = new ComparisonEngine();
 
-            var originalValue = property.GetValue(originalObject);
-            var newValue = property.GetValue(newObject);
+            var originalValue = property.GetValue(originalObject,new object[0]);
+            var newValue = property.GetValue(newObject, new object[0]);
 
             // Recurse back into comparison engine for this nested class
-            var results = comparisonEngine.CompareTo(property.PropertyType, originalValue, newValue);
+            var results = comparisonEngine.Compare(property.PropertyType, originalValue, newValue, ignoreList);
 
             // Prefix all property names
-            foreach (Difference result in results)
+            foreach (var result in results)
             {
-                result.PropertyName = property.Name + "." + result.PropertyName;
+                result.PrefixPropertyName(property.Name + ".");
             }
 
             return results;

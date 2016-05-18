@@ -12,27 +12,26 @@
             return property.PropertyType.IsValueType;
         }
 
-        public IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject)
+        public IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject, IList<PropertyInfo> ignoreList)
         {
-            // Value types all (should) override .Equals()
+            var originalValue = property.GetValue(originalObject, new object[0]);
+            var newValue = property.GetValue(newObject, new object[0]);
+
+            // If original value is null, there is nothing to call 'Equals' on..
+            if (originalValue == null)
+            {
+                if (newValue == null)
+                    return Enumerable.Empty<Difference>();
+
+                return Difference.SingleDifference(property.PropertyType, property.Name, null, newValue);
+            }
+
+            // Value types (should) all override .Equals()
             // https://msdn.microsoft.com/en-us/library/2dts52z7(v=vs.110).aspx
 
-            var originalValue = property.GetValue(originalObject);
-            var newValue = property.GetValue(newObject);
-
-            if (originalValue.Equals(newValue))
-                return Enumerable.Empty<Difference>();
-
-            return new[]
-            {
-                new Difference
-                {
-                    OriginalValue = originalValue,
-                    NewValue = newValue,
-                    PropertyName = property.Name,
-                    PropertyType = property.PropertyType
-                }
-            };
+            return originalValue.Equals(newValue) 
+                ? Enumerable.Empty<Difference>() 
+                : Difference.SingleDifference(property.PropertyType, property.Name, originalValue, newValue);
         }
     }
 }

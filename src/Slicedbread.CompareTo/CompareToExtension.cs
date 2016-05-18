@@ -1,19 +1,19 @@
 ﻿namespace Slicedbread.CompareTo
 {
+    using Config;
+    using Engine;
     using Models;
 
     public static class CompareToExtensions
     {
-        private static readonly ComparisonEngine ComparisonEngine;
-
-        static CompareToExtensions()
-        {
-            ComparisonEngine = new ComparisonEngine();
-        }
-        
         public static Comparison CompareTo<T>(this T originalObject, T newObject)
         {
-            return ComparisonEngine.CompareTo(originalObject, newObject);
+            return new ComparisonEngine().Compare(originalObject, newObject);
+        }
+
+        public static ComparisonConfig<T> ConfigureCompareTo<T>(this T originalObject, T newObject)
+        {
+            return new ComparisonConfig<T>(originalObject, newObject);
         }
     }
 }

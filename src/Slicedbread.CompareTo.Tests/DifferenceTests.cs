@@ -10,12 +10,7 @@
         public void Returns_Difference_As_String()
         {
             // Given
-            var diff = new Difference
-            {
-                PropertyName = "MyProperty",
-                OriginalValue = 789,
-                NewValue = 999
-            };
+            var diff = new Difference(typeof (int), "MyProperty", 789, 999);
 
             // When
             var diffString = diff.ToString();

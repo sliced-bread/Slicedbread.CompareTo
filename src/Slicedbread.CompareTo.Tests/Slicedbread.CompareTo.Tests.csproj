@@ -64,9 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompareToExtensionTests.cs" />
+    <Compile Include="DifferenceTests.cs" />
     <Compile Include="Models\IComparables.cs" />
-    <Compile Include="Models\NestedTypes.cs" />
-    <Compile Include="Models\ValueTypes.cs" />
     <Compile Include="Models\UnreadableProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

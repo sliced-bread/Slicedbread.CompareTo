@@ -19,9 +19,17 @@
 
         public int CompareTo(object obj)
         {
+            if (obj == null)
+                return -1;
+
             return Value == ((ComparableThing) obj).Value
                 ? 0
                 : -1;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 }
