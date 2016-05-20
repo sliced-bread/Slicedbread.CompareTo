@@ -39,7 +39,18 @@
 
                 var comparer = PropertyComparers.FirstOrDefault(c => c.CanCompare(property));
                 if (comparer != null)
-                    result.AddRange(comparer.Compare(property, originalObject, newObject, config));
+                {
+                    try
+                    {
+                        result.AddRange(comparer.Compare(property, originalObject, newObject, config));
+                    }
+                    catch
+                    {
+                        if (!config.SupressExceptions)
+                            throw;
+                    }
+                }
+                    
             }
 
             return result;

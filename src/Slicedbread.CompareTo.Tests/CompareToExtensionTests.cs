@@ -253,7 +253,7 @@
             var comparison = comparisonConfig.Compare();
 
             // Then
-            comparison.Count().ShouldBe(2);
+            comparison.Count.ShouldBe(2);
             comparison.Any(c => c.ToString().Contains("'Prop1'")).ShouldBeTrue();
             comparison.Any(c => c.ToString().Contains("'Prop2.NestedTwo'")).ShouldBeTrue();
         }
@@ -494,6 +494,63 @@
             comparison.Count.ShouldBe(2);
             comparison.ShouldContain(i => i.ToString() == "'Hello' was removed from 'SomeList'");
             comparison.ShouldContain(i => i.ToString() == "'World' was removed from 'SomeList'");
+        }
+
+        [Fact]
+        public void Swallows_Exceptions_If_Configured()
+        {
+            // Given
+            var thing1 = new
+            {
+                Prop1 = "Foo",
+                ExplodingThing = new ExceptionThrowingItem(),
+                Prop2 = "Hello",
+            };
+
+            var collection2 = new
+            {
+                Prop1 = "Bar",
+                ExplodingThing = new ExceptionThrowingItem(),
+                Prop2 = "World",
+            };
+
+            // When
+            var config = thing1.ConfigureCompareTo(collection2)
+                .SuppressExceptions();
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(2);
+            comparison.ShouldContain(i => i.ToString() == "'Prop1' changed from 'Foo' to 'Bar'");
+            comparison.ShouldContain(i => i.ToString() == "'Prop2' changed from 'Hello' to 'World'");
+        }
+
+        [Fact]
+        public void Does_Not_Swallow_Exceptions_Unless_Configured()
+        {
+            // Given
+            var thing1 = new
+            {
+                Prop1 = "Foo",
+                ExplodingThing = new ExceptionThrowingItem(),
+                Prop2 = "Bar",
+            };
+
+            var collection2 = new
+            {
+                Prop1 = "Hello",
+                ExplodingThing = new ExceptionThrowingItem(),
+                Prop2 = "World",
+            };
+
+            // When
+            var config = thing1.ConfigureCompareTo(collection2);
+
+            var ex = Record.Exception(() => config.Compare());
+
+            // Then
+            ex.ShouldNotBeNull();
         }
     }
 }

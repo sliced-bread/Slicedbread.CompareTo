@@ -9,6 +9,7 @@
 
     public class ComparisonConfig
     {
+        public bool SupressExceptions { get; set; }
         protected readonly List<PropertyInfo> IgnoreList;
         protected readonly Dictionary<Type, dynamic> CollectionIdentifiers;
 
@@ -29,6 +30,7 @@
                 ? CollectionIdentifiers[type] 
                 : null;
         }
+
     }
 
     public class ComparisonConfig<T> : ComparisonConfig
@@ -71,7 +73,17 @@
         {
             return new ComparisonEngine().Compare(_originalObject, _newObject, this);
         }
-        
+
+        /// <summary>
+        /// Swallows all exceptions
+        /// </summary>
+        /// <returns></returns>
+        public ComparisonConfig<T> SuppressExceptions()
+        {
+            SupressExceptions = true;
+            return this;
+        }
+
         internal void AddCollectionComparison<TCollectionType, TProp>(Type type, Func<TCollectionType, TProp> keyAccessorExpression)
         {
             CollectionIdentifiers.Add(type, keyAccessorExpression);
