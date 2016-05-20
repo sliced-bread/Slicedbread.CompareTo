@@ -168,5 +168,5 @@ var config = thing1.ConfigureCompareTo(thing2)
 var comparison = config.Compare();
 ```
 
-Exceptions should not occur during normal comparisons, but it is always possible that something could go wrong in a propery accessor or when calling a method to get the key for a collection item. 
+Exceptions should not occur during normal comparisons, but it is always possible that something could go wrong in a propery accessor or in our library itself (hey, nobody's perfect!). 
 If the comparison is not essential to the running of the application, consider supressing exceptions.
