@@ -9,7 +9,7 @@ var item2 = new { MyProp = "World" };
 
 var comparison = item1.CompareTo(item2);
 
-// Prints: 'Prop1' changed from 'Hello' to 'World'
+// Prints: 'MyProp' changed from 'Hello' to 'World'
 Console.WriteLine(comparison[0]);
 ```
 
