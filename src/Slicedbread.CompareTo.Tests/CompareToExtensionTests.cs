@@ -507,7 +507,7 @@
                 Prop2 = "Hello",
             };
 
-            var collection2 = new
+            var thing2 = new
             {
                 Prop1 = "Bar",
                 ExplodingThing = new ExceptionThrowingItem(),
@@ -515,7 +515,7 @@
             };
 
             // When
-            var config = thing1.ConfigureCompareTo(collection2)
+            var config = thing1.ConfigureCompareTo(thing2)
                 .SuppressExceptions();
 
             var comparison = config.Compare();
@@ -537,7 +537,7 @@
                 Prop2 = "Bar",
             };
 
-            var collection2 = new
+            var thing2 = new
             {
                 Prop1 = "Hello",
                 ExplodingThing = new ExceptionThrowingItem(),
@@ -545,7 +545,7 @@
             };
 
             // When
-            var config = thing1.ConfigureCompareTo(collection2);
+            var config = thing1.ConfigureCompareTo(thing2);
 
             var ex = Record.Exception(() => config.Compare());
 
