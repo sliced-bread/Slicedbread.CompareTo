@@ -552,5 +552,70 @@
             // Then
             ex.ShouldNotBeNull();
         }
+
+        [Fact]
+        public void Treats_Null_Original_Class_As_New_Item()
+        {
+            // Given
+            var item1 = new
+            {
+                Prop = default(ClassHolder)
+            };
+
+            var item2 = new
+            {
+                Prop = new ClassHolder {Child = new ClassExample("Hello")}
+            };
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.First().ToString().ShouldBe("'Prop.Child.Prop' changed from '' to 'Hello'");
+        }
+
+        [Fact]
+        public void Does_Not_Throw_When_New_Class_Is_Null()
+        {
+            // Given
+            var item1 = new
+            {
+                Prop = new ClassHolder { Child = new ClassExample("Hello") }
+            };
+
+            var item2 = new
+            {
+                Prop = default(ClassHolder)
+            };
+
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.First().ToString().ShouldBe("'Prop.Child.Prop' changed from 'Hello' to ''");
+        }
+
+        [Fact]
+        public void Compares_Null_Classes_And_Finds_No_Differences()
+        {
+            // Given
+            var item1 = new
+            {
+                Prop = default(ClassHolder)
+            };
+
+            var item2 = new
+            {
+                Prop = default(ClassHolder)
+            };
+
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.ShouldBeEmpty();
+        }
     }
 }

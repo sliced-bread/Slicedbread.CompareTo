@@ -46,7 +46,7 @@
                     }
                     catch
                     {
-                        if (!config.SupressExceptions)
+                        if (!config.ShouldSuppressExceptions)
                             throw;
                     }
                 }

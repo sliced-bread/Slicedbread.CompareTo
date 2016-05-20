@@ -9,7 +9,7 @@
 
     public class ComparisonConfig
     {
-        public bool SupressExceptions { get; set; }
+        internal bool ShouldSuppressExceptions { get; set; }
         protected readonly List<PropertyInfo> IgnoreList;
         protected readonly Dictionary<Type, dynamic> CollectionIdentifiers;
 
@@ -80,7 +80,7 @@
         /// <returns></returns>
         public ComparisonConfig<T> SuppressExceptions()
         {
-            SupressExceptions = true;
+            base.ShouldSuppressExceptions = true;
             return this;
         }
 
