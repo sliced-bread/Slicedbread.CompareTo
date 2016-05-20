@@ -18,17 +18,16 @@
             IgnoreList = new List<PropertyInfo>();
         }
 
-        public List<PropertyInfo> GetIgnoreList()
+        internal List<PropertyInfo> GetIgnoreList()
         {
             return IgnoreList;
         }
 
-        public dynamic GetKeyPropertyAccessorForCollection(Type type)
+        internal dynamic GetKeyPropertyAccessorForCollection(Type type)
         {
-            if (CollectionIdentifiers.ContainsKey(type))
-                return CollectionIdentifiers[type];
-
-            return null;
+            return CollectionIdentifiers.ContainsKey(type) 
+                ? CollectionIdentifiers[type] 
+                : null;
         }
     }
 
@@ -56,17 +55,24 @@
 
             return this;
         }
+
+        /// <summary>
+        /// Sets up the configuration for comparing a collection of a given Type
+        /// </summary>
         public CollectionComparisonConfig<T, TCollectionType> CompareCollection<TCollectionType>()
         {
             return new CollectionComparisonConfig<T, TCollectionType>(this);
         }
 
+        /// <summary>
+        /// Executes the comparison
+        /// </summary>
         public Comparison Compare()
         {
             return new ComparisonEngine().Compare(_originalObject, _newObject, this);
         }
         
-        public void AddCollectionComparison<TCollectionType, TProp>(Type type, Func<TCollectionType, TProp> keyAccessorExpression)
+        internal void AddCollectionComparison<TCollectionType, TProp>(Type type, Func<TCollectionType, TProp> keyAccessorExpression)
         {
             CollectionIdentifiers.Add(type, keyAccessorExpression);
         }
