@@ -19,6 +19,14 @@ Console.WriteLine(comparison[0]);
 - Compares collections
 - Is fully configurable
 
+## Installation
+
+Install via nuget:
+
+```
+PM > Install-Package Slicedbread.CompareTo
+```
+
 ## Basic comparisons
 
 To compare two relatively simple objects, you can just call `CompareTo()` directly..
