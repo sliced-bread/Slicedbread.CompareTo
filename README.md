@@ -8,15 +8,18 @@ var item1 = new { MyProp = "Hello" };
 var item2 = new { MyProp = "World" };
 
 var comparison = item1.CompareTo(item2);
+
+// Prints: 'Prop1' changed from 'Hello' to 'World'
+Console.WriteLine(comparison[0]);
 ```
-> 'Prop1' changed from 'Hello' to 'World'
+
 
 - Prints changes between properties in a human readable format
 - Supports nested types
 - Compares collections
 - Is fully configurable
 
-### Basic comparisons
+## Basic comparisons
 
 To compare two relatively simple objects, you can just call `CompareTo()` directly..
 
@@ -40,28 +43,121 @@ public interface IDifference
 Importantly, all of the differences returned override `ToString()` to return a human readable explaination of the change.
 
 ```csharp
+Prints: 'SomeProperty' changed from 'SomeOldValue' to 'SomeNewValue'
 Console.WriteLine(someDiff);
 ```
-> // Prints: 'SomeProperty' changed from 'SomeOldValue' to 'SomeNewValue'
 
-
-### Nested Classes
+#### Nested Classes
 
 Nested classes are handled automatically. The string representation of any changes will include the full path to the property:
 
 ``` csharp
 var originalObject = new
-  {
-      Child = new { IntegerProperty = 999 }
-  };
+{
+  Child = new { IntegerProperty = 999 }
+};
 
-  var newObject = new
-  {
-      Child = new { IntegerProperty = 123 }
-  };
+var newObject = new
+{
+  Child = new { IntegerProperty = 123 }
+};
 
-  var result = originalObject.CompareTo(newObject);
+var result = originalObject.CompareTo(newObject);
+
+// Prints: 'Child.IntegerProperty' changed from '999' to '123'
+Console.WriteLine(result[0]);
 ```
-> // Will print: 'Child.IntegerProperty' changed from '999' to '123'
 
+## Configuration
 
+If you want to do anything more complicated, you can create a comparison configuration first:
+
+```csharp
+var comparisonConfig = item1.ConfigureCompareTo(item2)
+   .Ignore(x => x.SomeProperty);
+   
+var result = comparisonConfig.Compare();
+```
+
+#### Ignoring Properties
+
+To ignore properties, use the `.Ignore()` method when configuring the comparison:
+
+```csharp
+var comparisonConfig = item1.ConfigureCompareTo(item2)
+   .Ignore(x => x.IgnoreMe);
+```
+
+The comparison will ignore all changes to this property.
+
+You can, of course, do this on nested properties too:
+
+```csharp
+var comparisonConfig = item1.ConfigureCompareTo(item2)
+   .Ignore(x => x.Parent.Child.IgnoreMe);
+```
+
+#### Collections
+
+You can also compare collections. 
+
+Collection changes also override the 'ToString()' method, but look like this:
+
+```
+'RemoveMe' was removed from 'SomeList'
+'AddMe' was added to 'SomeList'
+'Hello' changed to 'World' in 'SomeList'
+```
+
+By default, collections are compared by reference.
+
+If you wish to compare the collections using some sort of ID property, you can configure this too:
+
+```csharp
+// When
+var config = oldThing.ConfigureCompareTo(newThing)
+    .CompareCollection<CollectionItem>()
+    .UsingPropertyAsKey(c => c.Id);
+```
+
+In this case, whenever a collection of `CollectionItem`s is compared, they will be considered to represent the same thing if both of their `Id` properties match.
+
+Items that have the same 'Key' property will have their properties compared. If _any_ are different, the entire item is considered to have changed.
+
+CompareTo can also call a method to get the key for a collection item:
+
+```csharp
+// When
+var config = oldThing.ConfigureCompareTo(newThing)
+    .CompareCollection<CollectionItem>()
+    .UsingPropertyAsKey(c => c.GetUniqueKey());
+```
+
+If you wish the result of these comparisons to be human readable, you should override the `ToString()` method on the type contained in the list. That way, we can print out something that means something to you, rather than just the name of the type.
+
+```csharp
+// Some class held in a collection to be compared
+public class AddressItem
+{
+    public override string ToString()
+    {
+        return AddressLine1 + Country;
+    }
+}
+
+// '1 Main Street, USA' changed to '2 Main Street, USA' in 'AddressList'
+```
+
+#### Ignoring Exceptions
+
+If the comparison is not crucial to your application (you may be using it for logging, for example), you can configure CompareTo to swallow any exceptions.
+
+```csharp
+var config = thing1.ConfigureCompareTo(thing2)
+    .SuppressExceptions();
+
+var comparison = config.Compare();
+```
+
+Exceptions should not occur during normal comparisons, but it is always possible that something could go wrong in a propery accessor or when calling a method to get the key for a collection item. 
+If the comparison is not essential to the running of the application, consider supressing exceptions.
