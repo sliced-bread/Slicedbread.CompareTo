@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Config;
     using Models;
 
     public class IComparableComparer : IPropertyComparer
@@ -13,7 +14,7 @@
             return typeof(IComparable).IsAssignableFrom(property.PropertyType);
         }
 
-        public IEnumerable<Difference> Compare<T>(PropertyInfo property, T originalObject, T newObject, IList<PropertyInfo> ignoreList)
+        public IEnumerable<IDifference> Compare<T>(PropertyInfo property, T originalObject, T newObject, ComparisonConfig config)
         {
             var originalValue = property.GetValue(originalObject, new object[0]);
             var newValue = property.GetValue(newObject, new object[0]);

@@ -274,5 +274,84 @@
             ex.ShouldBeOfType<ArgumentException>();
             ex.Message.ShouldBe("Cannot ignore 'x => x.ToString()'. Ignore expressions must point to a property.");
         }
+        
+        [Fact]
+        public void Matches_Collections_By_Reference_If_No_ID_Configured()
+        {
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+
+            var item1 = new CollecionItem(id1, "Hello");
+            var item2 = new CollecionItem(id2, "Foo");
+            var item3 = new CollecionItem(Guid.NewGuid(), "RemoveMe");
+            var item4 = new CollecionItem(Guid.NewGuid(), "AddMe");
+
+            var collection1 = new
+            {
+                SomeList = new[] { item1, item2, item3 }
+            };
+
+            var collection2 = new
+            {
+                SomeList = new[] { item1, item2, item4 }
+            };
+
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollecionItem>()
+                .UsingPropertyAsKey(c => c.Value);
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(2);
+            comparison.ShouldContain(i => i.ToString() == "'RemoveMe' was removed from 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'AddMe' was added to 'SomeList'");
+        }
+
+        [Fact]
+        public void Matches_Collections()
+        {
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+            var collection1 = new
+            {
+                SomeList = new[]
+                {
+                    new CollecionItem(id1, "Hello"),
+                    new CollecionItem(id2, "Foo"),
+                    new CollecionItem(Guid.NewGuid(), "RemoveMe")
+                }
+            };
+
+            var collection2 = new
+            {
+                SomeList = new[]
+                {
+                    new CollecionItem(id1, "World"),
+                    new CollecionItem(id2, "Foo"),
+                    new CollecionItem(Guid.NewGuid(), "AddMe")
+                }
+            };
+
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollecionItem>()
+                .UsingPropertyAsKey(c => c.Value);
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison[0].ToString().ShouldBe("'Hello' was changed to 'World' in 'SomeList'");
+            comparison[0].ToString().ShouldBe("'RemoveMe' was removed from 'SomeList'");
+            comparison[0].ToString().ShouldBe("'AddMe' was added to 'SomeList'");
+        }
+
+        // TODO: type is ienumerable or array
+        // TODO: no config ignores properties or throws?
+        // TODO: id func points to method
+        // TODO: null collections
     }
 }

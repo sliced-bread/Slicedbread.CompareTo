@@ -7,18 +7,37 @@
     using Engine;
     using Models;
 
-    public class ComparisonConfig<T>
+    public class ComparisonConfig
+    {
+        protected readonly List<PropertyInfo> IgnoreList;
+        protected readonly Dictionary<Type, PropertyInfo> CollectionIdentifiers;
+
+        public ComparisonConfig()
+        { 
+            CollectionIdentifiers = new Dictionary<Type, PropertyInfo>();
+            IgnoreList = new List<PropertyInfo>();
+        }
+
+        public List<PropertyInfo> GetIgnoreList()
+        {
+            return IgnoreList;
+        }
+
+        public PropertyInfo GetKeyPropertyForCollection(Type type)
+        {
+            return CollectionIdentifiers[type];
+        }
+    }
+
+    public class ComparisonConfig<T> : ComparisonConfig
     {
         private readonly T _originalObject;
         private readonly T _newObject;
-        private readonly ComparisonEngine _engine;
-        private readonly List<PropertyInfo> _ignoreList;
-
-        public ComparisonConfig(T originalObject, T newObject)
+        
+        public ComparisonConfig(T originalObject, T newObject) : base()
         {
             _originalObject = originalObject;
             _newObject = newObject;
-            _ignoreList = new List<PropertyInfo>();
         }
 
         public ComparisonConfig<T> Ignore<TPropType>(Expression<Func<T, TPropType>> func)
@@ -30,15 +49,23 @@
 
             var info = property.Member as PropertyInfo;
 
-            _ignoreList.Add(info);
+            IgnoreList.Add(info);
 
             return this;
-
+        }
+        public CollectionComparisonConfig<T, TCollectionType> CompareCollection<TCollectionType>()
+        {
+            return new CollectionComparisonConfig<T, TCollectionType>(this);
         }
 
         public Comparison Compare()
         {
-            return new ComparisonEngine().Compare(_originalObject, _newObject, _ignoreList);
+            return new ComparisonEngine().Compare(_originalObject, _newObject, this);
+        }
+
+        public void AddCollectionComparison(Type type, PropertyInfo property)
+        {
+            CollectionIdentifiers.Add(type, property);
         }
     }
 }

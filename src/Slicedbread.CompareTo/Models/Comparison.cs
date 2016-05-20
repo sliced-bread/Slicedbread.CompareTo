@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public class Comparison : List<Difference>
+    public class Comparison : List<IDifference>
     {
-        public Difference this[string propertyName]
+        public IDifference this[string propertyName]
         {
             get { return base.Find(c => c.PropertyName == propertyName); }
         }

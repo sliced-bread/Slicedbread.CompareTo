@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
 
-    public class Difference
+    public class Difference : IDifference
     {
         public Type PropertyType { get; private set; }
-        public string PropertyName { get; private set; }
+        public string PropertyName { get; set; }
 
         public object OriginalValue { get; private set; }
         public object NewValue { get; private set; }
@@ -18,24 +18,17 @@
             OriginalValue = originalValue;
             NewValue = newValue;
         }
-
-        public override string ToString()
-        {
-            return string.Format("'{0}' changed from '{1}' to '{2}'", PropertyName, OriginalValue, NewValue);
-        }
-
-        public void PrefixPropertyName(string prefix)
-        {
-            PropertyName = prefix + PropertyName;
-        }
-
-
+        
         public static IEnumerable<Difference> SingleDifference(Type propertyType, string propertyName, object originalValue, object newValue)
         {
             return new[]
             {
                 new Difference(propertyType, propertyName, originalValue, newValue)
             };
+        }
+        public override string ToString()
+        {
+            return string.Format("'{0}' changed from '{1}' to '{2}'", PropertyName, OriginalValue, NewValue);
         }
     }
 }

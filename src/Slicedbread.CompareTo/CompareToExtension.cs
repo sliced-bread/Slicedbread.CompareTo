@@ -8,7 +8,7 @@
     {
         public static Comparison CompareTo<T>(this T originalObject, T newObject)
         {
-            return new ComparisonEngine().Compare(originalObject, newObject);
+            return new ComparisonEngine().Compare(originalObject, newObject, new ComparisonConfig());
         }
 
         public static ComparisonConfig<T> ConfigureCompareTo<T>(this T originalObject, T newObject)
