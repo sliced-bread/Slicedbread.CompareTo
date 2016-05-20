@@ -138,17 +138,6 @@ In this case, whenever a collection of `CollectionItems` is compared, they will 
 
 Items that have the same 'Key' property will have their properties compared. If _any_ are different, the entire item is considered to have changed.
 
-CompareTo can also call a method to get the key for a collection item:
-
-```csharp
-// When
-var config = oldThing.ConfigureCompareTo(newThing)
-    .CompareCollection<CollectionItem>()
-    .UsingPropertyAsKey(c => c.GetUniqueKey());
-   
-var result = config.Compare();
-```
-
 If you wish the result of these comparisons to be human readable, you should override the `ToString()` method on the type contained in the list. 
 
 ```csharp
