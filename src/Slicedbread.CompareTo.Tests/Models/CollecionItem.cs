@@ -2,7 +2,7 @@ namespace Slicedbread.CompareTo.Tests.Models
 {
     using System;
 
-    internal class CollecionItem
+    public class CollecionItem
     {
         public Guid Id { get; private set; }
         public string Value { get; private set; }

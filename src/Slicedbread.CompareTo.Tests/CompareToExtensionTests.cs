@@ -2,6 +2,8 @@
 {
     using System;
     using System.Linq;
+    using System.Linq.Expressions;
+    using Config;
     using Models;
     using Shouldly;
     using Xunit;
@@ -298,9 +300,7 @@
             };
 
             // When
-            var config = collection1.ConfigureCompareTo(collection2)
-                .CompareCollection<CollecionItem>()
-                .UsingPropertyAsKey(c => c.Value);
+            var config = collection1.ConfigureCompareTo(collection2);
 
             var comparison = config.Compare();
 
@@ -339,19 +339,37 @@
             // When
             var config = collection1.ConfigureCompareTo(collection2)
                 .CompareCollection<CollecionItem>()
-                .UsingPropertyAsKey(c => c.Value);
+                .UsingPropertyAsKey(c => c.Id);
 
             var comparison = config.Compare();
 
             // Then
-            comparison[0].ToString().ShouldBe("'Hello' was changed to 'World' in 'SomeList'");
-            comparison[0].ToString().ShouldBe("'RemoveMe' was removed from 'SomeList'");
-            comparison[0].ToString().ShouldBe("'AddMe' was added to 'SomeList'");
+            comparison.Count.ShouldBe(3);
+            comparison.ShouldContain(i => i.ToString() == "'Hello' changed to 'World' in 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'RemoveMe' was removed from 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'AddMe' was added to 'SomeList'");
         }
 
         // TODO: type is ienumerable or array
         // TODO: no config ignores properties or throws?
         // TODO: id func points to method
         // TODO: null collections
+
+
+
+
+        [Fact]
+        public void Spike()
+        {
+            UsingPropertyAsKey<string>(c => c.Value);
+        }
+
+        internal void UsingPropertyAsKey<TProp>(Func<CollecionItem, TProp> func)
+        {
+            var collectionItem = new CollecionItem(Guid.NewGuid(), "Hello");
+
+            var result = func.Invoke(collectionItem);
+
+        }
     }
 }

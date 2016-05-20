@@ -25,7 +25,7 @@
             if (OriginalValue != null && NewValue == null)
                 return string.Format("'{0}' was removed from '{1}'", OriginalValue, PropertyName);
 
-            return string.Empty;
+            return string.Format("'{0}' changed to '{1}' in '{2}'", OriginalValue, NewValue, PropertyName);
         }
     }
 }

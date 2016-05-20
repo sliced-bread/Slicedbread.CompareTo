@@ -10,11 +10,11 @@
     public class ComparisonConfig
     {
         protected readonly List<PropertyInfo> IgnoreList;
-        protected readonly Dictionary<Type, PropertyInfo> CollectionIdentifiers;
+        protected readonly Dictionary<Type, dynamic> CollectionIdentifiers;
 
         public ComparisonConfig()
         { 
-            CollectionIdentifiers = new Dictionary<Type, PropertyInfo>();
+            CollectionIdentifiers = new Dictionary<Type, dynamic>();
             IgnoreList = new List<PropertyInfo>();
         }
 
@@ -23,9 +23,12 @@
             return IgnoreList;
         }
 
-        public PropertyInfo GetKeyPropertyForCollection(Type type)
+        public dynamic GetKeyPropertyAccessorForCollection(Type type)
         {
-            return CollectionIdentifiers[type];
+            if (CollectionIdentifiers.ContainsKey(type))
+                return CollectionIdentifiers[type];
+
+            return null;
         }
     }
 
@@ -62,10 +65,10 @@
         {
             return new ComparisonEngine().Compare(_originalObject, _newObject, this);
         }
-
-        public void AddCollectionComparison(Type type, PropertyInfo property)
+        
+        public void AddCollectionComparison<TCollectionType, TProp>(Type type, Func<TCollectionType, TProp> keyAccessorExpression)
         {
-            CollectionIdentifiers.Add(type, property);
+            CollectionIdentifiers.Add(type, keyAccessorExpression);
         }
     }
 }
