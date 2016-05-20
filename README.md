@@ -43,7 +43,7 @@ public interface IDifference
 Importantly, all of the differences returned override `ToString()` to return a human readable explaination of the change.
 
 ```csharp
-Prints: 'SomeProperty' changed from 'SomeOldValue' to 'SomeNewValue'
+// Prints: 'SomeProperty' changed from 'SomeOldValue' to 'SomeNewValue'
 Console.WriteLine(someDiff);
 ```
 
@@ -81,14 +81,14 @@ var result = comparisonConfig.Compare();
 
 #### Ignoring Properties
 
-To ignore properties, use the `.Ignore()` method when configuring the comparison:
+To ignore properties, use the `.Ignore()` method when configuring the comparison, passing the property you wish to be ignored:
 
 ```csharp
 var comparisonConfig = item1.ConfigureCompareTo(item2)
    .Ignore(x => x.IgnoreMe);
 ```
 
-The comparison will ignore all changes to this property.
+The comparison will ignore all changes to the `IgnoreMe` property.
 
 You can, of course, do this on nested properties too:
 
@@ -101,7 +101,7 @@ var comparisonConfig = item1.ConfigureCompareTo(item2)
 
 You can also compare collections. 
 
-Collection changes also override the 'ToString()' method, but look like this:
+Collection changes also override the 'ToString()` method, but look like this:
 
 ```
 'RemoveMe' was removed from 'SomeList'
@@ -120,7 +120,7 @@ var config = oldThing.ConfigureCompareTo(newThing)
     .UsingPropertyAsKey(c => c.Id);
 ```
 
-In this case, whenever a collection of `CollectionItem`s is compared, they will be considered to represent the same thing if both of their `Id` properties match.
+In this case, whenever a collection of `CollectionItems` is compared, they will be considered to represent the same item if both of their `Id` properties match.
 
 Items that have the same 'Key' property will have their properties compared. If _any_ are different, the entire item is considered to have changed.
 
@@ -133,7 +133,7 @@ var config = oldThing.ConfigureCompareTo(newThing)
     .UsingPropertyAsKey(c => c.GetUniqueKey());
 ```
 
-If you wish the result of these comparisons to be human readable, you should override the `ToString()` method on the type contained in the list. That way, we can print out something that means something to you, rather than just the name of the type.
+If you wish the result of these comparisons to be human readable, you should override the `ToString()` method on the type contained in the list. 
 
 ```csharp
 // Some class held in a collection to be compared
@@ -144,8 +144,12 @@ public class AddressItem
         return AddressLine1 + Country;
     }
 }
+```
+A comparison of a collection of any `IEnumerable<AddressItems>` would then like like this:
 
-// '1 Main Street, USA' changed to '2 Main Street, USA' in 'AddressList'
+```
+'1 Main Street, USA' changed to '2 Main Street, USA' in 'AddressList'
+'10 Park Lane, UK' was added to 'AddressList'
 ```
 
 #### Ignoring Exceptions
