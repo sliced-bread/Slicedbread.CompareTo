@@ -62,12 +62,12 @@ Nested classes are handled automatically. The string representation of any chang
 ``` csharp
 var originalObject = new
 {
-  Child = new { IntegerProperty = 999 }
+   Child = new { IntegerProperty = 999 }
 };
 
 var newObject = new
 {
-  Child = new { IntegerProperty = 123 }
+   Child = new { IntegerProperty = 123 }
 };
 
 var result = originalObject.CompareTo(newObject);
