@@ -94,6 +94,8 @@ To ignore properties, use the `.Ignore()` method when configuring the comparison
 ```csharp
 var comparisonConfig = item1.ConfigureCompareTo(item2)
    .Ignore(x => x.IgnoreMe);
+   
+var result = comparisonConfig.Compare();
 ```
 
 The comparison will ignore all changes to the `IgnoreMe` property.
@@ -103,6 +105,8 @@ You can, of course, do this on nested properties too:
 ```csharp
 var comparisonConfig = item1.ConfigureCompareTo(item2)
    .Ignore(x => x.Parent.Child.IgnoreMe);
+   
+var result = comparisonConfig.Compare();
 ```
 
 #### Collections
@@ -126,6 +130,8 @@ If you wish to compare the collections using some sort of ID property, you can c
 var config = oldThing.ConfigureCompareTo(newThing)
     .CompareCollection<CollectionItem>()
     .UsingPropertyAsKey(c => c.Id);
+   
+var result = config.Compare();
 ```
 
 In this case, whenever a collection of `CollectionItems` is compared, they will be considered to represent the same item if both of their `Id` properties match.
@@ -139,6 +145,8 @@ CompareTo can also call a method to get the key for a collection item:
 var config = oldThing.ConfigureCompareTo(newThing)
     .CompareCollection<CollectionItem>()
     .UsingPropertyAsKey(c => c.GetUniqueKey());
+   
+var result = config.Compare();
 ```
 
 If you wish the result of these comparisons to be human readable, you should override the `ToString()` method on the type contained in the list. 
