@@ -146,7 +146,7 @@ public class AddressItem
 {
     public override string ToString()
     {
-        return AddressLine1 + Country;
+        return AddressLine1 + ", " + Country;
     }
 }
 ```
