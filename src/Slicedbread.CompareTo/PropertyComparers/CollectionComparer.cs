@@ -27,35 +27,40 @@
 
             var func = config.GetKeyPropertyAccessorForCollection(baseType);
 
-            var method = this.GetType().GetMethod("CompareInternal").MakeGenericMethod(baseType);
+            // Call the generic method to compare the collections.
+            // This allows us to use strong typing
+            var method = this
+                .GetType()
+                .GetMethod("CompareInternal", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(baseType);
 
             return (IEnumerable<IDifference>)method.Invoke(this, new object[]{ property, originalValue, newValue, func});
         }
         
-        public IEnumerable<IDifference> CompareInternal<T>(PropertyInfo property, IEnumerable<T> oldCollection, IEnumerable<T> newCollection, dynamic func)
+        private IEnumerable<IDifference> CompareInternal<T>(PropertyInfo property, IEnumerable<T> oldCollection, IEnumerable<T> newCollection, dynamic keyAccessorFunc)
         {
             var oldItems = oldCollection?.ToList() ?? new List<T>();
             var newItems = newCollection?.ToList() ?? new List<T>();
 
-            return func != null 
-                ? CompareCollectionByKey(property, func, oldItems, newItems) 
+            return keyAccessorFunc != null 
+                ? CompareCollectionByKey(property, keyAccessorFunc, oldItems, newItems) 
                 : CompareCollectionByReference(property, oldItems, newItems);
         }
 
-        private static IEnumerable<IDifference> CompareCollectionByKey<T>(PropertyInfo property, dynamic func, List<T> oldItems, List<T> newItems)
+        private static IEnumerable<IDifference> CompareCollectionByKey<T>(PropertyInfo property, dynamic keyAccessorFunc, List<T> oldItems, List<T> newItems)
         {
             var diffs = new List<IDifference>();
 
             var addedItems = newItems.Where(newItem =>
-                !oldItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                !oldItems.Any(oldItem => keyAccessorFunc.Invoke(oldItem).Equals(keyAccessorFunc.Invoke(newItem)))
                 ).ToList();
 
             var removedItems = oldItems.Where(newItem =>
-                !newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                !newItems.Any(oldItem => keyAccessorFunc.Invoke(oldItem).Equals(keyAccessorFunc.Invoke(newItem)))
                 ).ToList();
 
             var matchingItems = oldItems.Where(newItem =>
-                newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                newItems.Any(oldItem => keyAccessorFunc.Invoke(oldItem).Equals(keyAccessorFunc.Invoke(newItem)))
                 ).ToList();
 
             diffs.AddRange(addedItems.Select(i => new CollectionDifference(property.PropertyType, property.Name, null, i)));
@@ -63,9 +68,9 @@
 
             foreach (var oldItem in matchingItems)
             {
-                var id = func.Invoke(oldItem);
+                var id = keyAccessorFunc.Invoke(oldItem);
 
-                var matchingItem = newItems.FirstOrDefault(newItem => func.Invoke(newItem).Equals(id));
+                var matchingItem = newItems.FirstOrDefault(newItem => keyAccessorFunc.Invoke(newItem).Equals(id));
                 var equal = new ComparisonEngine().Compare(oldItem, matchingItem, new ComparisonConfig()).Count == 0;
 
                 if (equal)

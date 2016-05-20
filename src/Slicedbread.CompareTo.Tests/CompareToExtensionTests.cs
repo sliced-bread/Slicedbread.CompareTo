@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
-    using Config;
     using Models;
     using Shouldly;
     using Xunit;
