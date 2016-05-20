@@ -2,12 +2,12 @@ namespace Slicedbread.CompareTo.Tests.Models
 {
     using System;
 
-    public class CollecionItem
+    public class CollectionItem
     {
         public Guid Id { get; private set; }
         public string Value { get; private set; }
 
-        public CollecionItem(Guid id, string value)
+        public CollectionItem(Guid id, string value)
         {
             Id = id;
             Value = value;
@@ -16,6 +16,11 @@ namespace Slicedbread.CompareTo.Tests.Models
         public override string ToString()
         {
             return Value;
+        }
+
+        public Guid GetId()
+        {
+            return Id;
         }
     }
 }

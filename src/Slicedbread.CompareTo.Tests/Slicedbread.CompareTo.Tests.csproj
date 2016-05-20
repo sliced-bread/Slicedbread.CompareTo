@@ -65,7 +65,7 @@
   <ItemGroup>
     <Compile Include="CompareToExtensionTests.cs" />
     <Compile Include="DifferenceTests.cs" />
-    <Compile Include="Models\CollecionItem.cs" />
+    <Compile Include="Models\CollectionItem.cs" />
     <Compile Include="Models\IComparables.cs" />
     <Compile Include="Models\UnreadableProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

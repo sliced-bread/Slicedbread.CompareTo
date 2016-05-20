@@ -1,6 +1,7 @@
 ﻿namespace Slicedbread.CompareTo.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Config;
@@ -278,16 +279,16 @@
         }
         
         [Fact]
-        public void Matches_Collections_By_Reference_If_No_ID_Configured()
+        public void Matches_Collections_By_Reference_If_No_Key_Configured()
         {
             // Given
             var id1 = Guid.NewGuid();
             var id2 = Guid.NewGuid();
 
-            var item1 = new CollecionItem(id1, "Hello");
-            var item2 = new CollecionItem(id2, "Foo");
-            var item3 = new CollecionItem(Guid.NewGuid(), "RemoveMe");
-            var item4 = new CollecionItem(Guid.NewGuid(), "AddMe");
+            var item1 = new CollectionItem(id1, "Hello");
+            var item2 = new CollectionItem(id2, "Foo");
+            var item3 = new CollectionItem(Guid.NewGuid(), "RemoveMe");
+            var item4 = new CollectionItem(Guid.NewGuid(), "AddMe");
 
             var collection1 = new
             {
@@ -311,7 +312,7 @@
         }
 
         [Fact]
-        public void Matches_Collections()
+        public void Matches_Array_By_Key_If_Configured()
         {
             // Given
             var id1 = Guid.NewGuid();
@@ -320,9 +321,9 @@
             {
                 SomeList = new[]
                 {
-                    new CollecionItem(id1, "Hello"),
-                    new CollecionItem(id2, "Foo"),
-                    new CollecionItem(Guid.NewGuid(), "RemoveMe")
+                    new CollectionItem(id1, "Hello"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "RemoveMe")
                 }
             };
 
@@ -330,15 +331,15 @@
             {
                 SomeList = new[]
                 {
-                    new CollecionItem(id1, "World"),
-                    new CollecionItem(id2, "Foo"),
-                    new CollecionItem(Guid.NewGuid(), "AddMe")
+                    new CollectionItem(id1, "World"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "AddMe")
                 }
             };
 
             // When
             var config = collection1.ConfigureCompareTo(collection2)
-                .CompareCollection<CollecionItem>()
+                .CompareCollection<CollectionItem>()
                 .UsingPropertyAsKey(c => c.Id);
 
             var comparison = config.Compare();
@@ -350,26 +351,151 @@
             comparison.ShouldContain(i => i.ToString() == "'AddMe' was added to 'SomeList'");
         }
 
-        // TODO: type is ienumerable or array
-        // TODO: no config ignores properties or throws?
-        // TODO: id func points to method
-        // TODO: null collections
-
-
-
-
         [Fact]
-        public void Spike()
+        public void Matches_IEnumerable_By_Key_If_Configured()
         {
-            UsingPropertyAsKey<string>(c => c.Value);
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+            var collection1 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "Hello"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "RemoveMe")
+                }
+            };
+
+            var collection2 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "World"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "AddMe")
+                }
+            };
+
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollectionItem>()
+                .UsingPropertyAsKey(c => c.Id);
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(3);
+            comparison.ShouldContain(i => i.ToString() == "'Hello' changed to 'World' in 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'RemoveMe' was removed from 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'AddMe' was added to 'SomeList'");
         }
 
-        internal void UsingPropertyAsKey<TProp>(Func<CollecionItem, TProp> func)
+        [Fact]
+        public void Matches_IEnumerable_By_Method_Used_As_Key()
         {
-            var collectionItem = new CollecionItem(Guid.NewGuid(), "Hello");
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+            var collection1 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "Hello"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "RemoveMe")
+                }
+            };
 
-            var result = func.Invoke(collectionItem);
+            var collection2 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "World"),
+                    new CollectionItem(id2, "Foo"),
+                    new CollectionItem(Guid.NewGuid(), "AddMe")
+                }
+            };
 
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollectionItem>()
+                .UsingPropertyAsKey(c => c.GetId());
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(3);
+            comparison.ShouldContain(i => i.ToString() == "'Hello' changed to 'World' in 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'RemoveMe' was removed from 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'AddMe' was added to 'SomeList'");
+        }
+
+        [Fact]
+        public void Treats_Null_Original_Collection_As_Empty()
+        {
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+            var collection1 = new
+            {
+                SomeList = default(List<CollectionItem>)
+            };
+
+            var collection2 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "Hello"),
+                    new CollectionItem(id2, "World")
+                }
+            };
+
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollectionItem>()
+                .UsingPropertyAsKey(c => c.GetId());
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(2);
+            comparison.ShouldContain(i => i.ToString() == "'Hello' was added to 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'World' was added to 'SomeList'");
+        }
+
+        [Fact]
+        public void Treats_Null_New_Collection_As_Empty()
+        {
+            // Given
+            var id1 = Guid.NewGuid();
+            var id2 = Guid.NewGuid();
+
+            var collection1 = new
+            {
+                SomeList = new List<CollectionItem>
+                {
+                    new CollectionItem(id1, "Hello"),
+                    new CollectionItem(id2, "World")
+                }
+            };
+
+            var collection2 = new
+            {
+                SomeList = default(List<CollectionItem>)
+            };
+
+            // When
+            var config = collection1.ConfigureCompareTo(collection2)
+                .CompareCollection<CollectionItem>()
+                .UsingPropertyAsKey(c => c.GetId());
+
+            var comparison = config.Compare();
+
+            // Then
+            comparison.Count.ShouldBe(2);
+            comparison.ShouldContain(i => i.ToString() == "'Hello' was removed from 'SomeList'");
+            comparison.ShouldContain(i => i.ToString() == "'World' was removed from 'SomeList'");
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace Slicedbread.CompareTo.PropertyComparers
 {
-    using System;
-    using System.CodeDom;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -33,54 +31,61 @@
 
             return (IEnumerable<IDifference>)method.Invoke(this, new object[]{ property, originalValue, newValue, func});
         }
-
-
-        public IEnumerable<IDifference> CompareInternal<T>(PropertyInfo property, IEnumerable<T> oldCOllection, IEnumerable<T> newCollection, dynamic func)
+        
+        public IEnumerable<IDifference> CompareInternal<T>(PropertyInfo property, IEnumerable<T> oldCollection, IEnumerable<T> newCollection, dynamic func)
         {
-            var oldItems = oldCOllection.ToList();
-            var newItems = newCollection.ToList();
+            var oldItems = oldCollection?.ToList() ?? new List<T>();
+            var newItems = newCollection?.ToList() ?? new List<T>();
 
+            return func != null 
+                ? CompareCollectionByKey(property, func, oldItems, newItems) 
+                : CompareCollectionByReference(property, oldItems, newItems);
+        }
+
+        private static IEnumerable<IDifference> CompareCollectionByKey<T>(PropertyInfo property, dynamic func, List<T> oldItems, List<T> newItems)
+        {
+            var diffs = new List<IDifference>();
+
+            var addedItems = newItems.Where(newItem =>
+                !oldItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                ).ToList();
+
+            var removedItems = oldItems.Where(newItem =>
+                !newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                ).ToList();
+
+            var matchingItems = oldItems.Where(newItem =>
+                newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
+                ).ToList();
+
+            diffs.AddRange(addedItems.Select(i => new CollectionDifference(property.PropertyType, property.Name, null, i)));
+            diffs.AddRange(removedItems.Select(i => new CollectionDifference(property.PropertyType, property.Name, i, null)));
+
+            foreach (var oldItem in matchingItems)
+            {
+                var id = func.Invoke(oldItem);
+
+                var matchingItem = newItems.FirstOrDefault(newItem => func.Invoke(newItem).Equals(id));
+                var equal = new ComparisonEngine().Compare(oldItem, matchingItem, new ComparisonConfig()).Count == 0;
+
+                if (equal)
+                    continue;
+
+                diffs.Add(new CollectionDifference(property.PropertyType, property.Name, oldItem, matchingItem));
+            }
+
+            return diffs;
+        }
+
+        private static IEnumerable<IDifference> CompareCollectionByReference<T>(PropertyInfo property, IList<T> oldItems, IList<T> newItems)
+        {
+            var diffs = new List<IDifference>();
+            
             var added = newItems.Where(c => !oldItems.Contains(c));
             var removed = oldItems.Where(c => !newItems.Contains(c));
 
-            var diffs = new List<IDifference>();
-
-
-
-            if (func != null)
-            {
-
-                var addedItems = newItems.Where(newItem => 
-                    !oldItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
-                ).ToList();
-
-                var removedItems = oldItems.Where(newItem =>
-                    !newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
-                ).ToList();
-
-                var matchingItems = oldItems.Where(newItem =>
-                    newItems.Any(oldItem => func.Invoke(oldItem).Equals(func.Invoke(newItem)))
-                    ).ToList();
-
-                diffs.AddRange(addedItems.Select(i => new CollectionDifference(property.PropertyType, property.Name, null, i)));
-                diffs.AddRange(removedItems.Select(i => new CollectionDifference(property.PropertyType, property.Name, i, null)));
-
-                foreach (var oldItem in matchingItems)
-                {
-                    var id = func.Invoke(oldItem);
-
-                    var matchingItem = newItems.FirstOrDefault(newItem => func.Invoke(newItem).Equals(id));
-                    var equal = new ComparisonEngine().Compare(oldItem, matchingItem, new ComparisonConfig()).Count == 0;
-
-                    if (!equal)
-                        diffs.Add(new CollectionDifference(property.PropertyType, property.Name, oldItem, matchingItem));
-                }
-            }
-            else
-            {
-                diffs.AddRange(added.Select(i => new CollectionDifference(property.PropertyType, property.Name, null, i)));
-                diffs.AddRange(removed.Select(i => new CollectionDifference(property.PropertyType, property.Name, i, null)));
-            }
+            diffs.AddRange(added.Select(i => new CollectionDifference(property.PropertyType, property.Name, null, i)));
+            diffs.AddRange(removed.Select(i => new CollectionDifference(property.PropertyType, property.Name, i, null)));
 
             return diffs;
         }
