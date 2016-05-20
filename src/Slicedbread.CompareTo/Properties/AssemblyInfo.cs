@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Slicedbread.CompareTo")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Compares two classes and returns the differences")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Slicedbread Ltd")]
 [assembly: AssemblyProduct("Slicedbread.CompareTo")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]

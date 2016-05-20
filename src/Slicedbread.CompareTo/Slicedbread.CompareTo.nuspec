@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Slicedbread Ltd</authors>
+    <owners>Slicedbread Ltd</owners>
+    <licenseUrl>https://github.com/sliced-bread/Slicedbread.CompareTo</licenseUrl>
+    <projectUrl>https://github.com/sliced-bread/Slicedbread.CompareTo</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Compares two classes and returns the differences</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>Diff Compare</tags>
+  </metadata>
+</package>
