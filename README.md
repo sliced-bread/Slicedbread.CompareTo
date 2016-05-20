@@ -27,7 +27,7 @@ To compare two relatively simple objects, you can just call `CompareTo()` direct
 var diff = oldItem.CompareTo(newItem);
 ```
 
-.. which will return an `IEnumerable<IDifference>', which looks like this:
+.. which will return an `IEnumerable<IDifference>`, which looks like this:
 
 ```csharp
 public interface IDifference
