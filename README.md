@@ -113,7 +113,7 @@ var result = comparisonConfig.Compare();
 
 You can also compare collections. 
 
-Collection changes also override the 'ToString()` method, but look like this:
+Collection changes also override the `ToString()` method, but look like this:
 
 ```
 'RemoveMe' was removed from 'SomeList'
