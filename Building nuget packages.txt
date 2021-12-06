@@ -1,0 +1,5 @@
+1. Update AssemblyInfo.cs with the latest version and copyright year
+2. From the root folder, run 
+	nuget pack .\src\Slicedbread.CompareTo\Slicedbread.CompareTo.csproj
+
+3. Upload the created .nupkg file to nuget.org
