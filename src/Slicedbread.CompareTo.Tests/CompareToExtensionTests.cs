@@ -99,6 +99,20 @@
         }
 
         [Fact]
+        public void Returns_Correct_Text_When_Moving_From_From_Value_To_Null()
+        {
+            // Given
+            var item1 = new { Prop = new int?(123) };
+            var item2 = new { Prop = default(int?) };
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.First().ToString().ShouldBe("Removed 'Prop' (value was previously '123')");
+        }
+
+        [Fact]
         public void Does_Not_Read_Properties_Where_CanRead_Is_False()
         {
             // Given
@@ -134,7 +148,7 @@
             result["Child.IntegerProperty"].NewValue.ShouldBe(123);
             result["Child.IntegerProperty"].PropertyType.ShouldBe(typeof(int));
         }
-        
+
         [Fact]
         public void Does_Not_Throw_When_New_Value_Type_Property_Is_Null()
         {
@@ -146,7 +160,7 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.First().ToString().ShouldBe("'Prop' changed from '123' to ''");
+            comparison.First().ToString().ShouldBe("Removed 'Prop' (value was previously '123')");
         }
 
         [Fact]
@@ -188,7 +202,7 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.First().ToString().ShouldBe("'ComparableThing' changed from '999' to ''");
+            comparison.First().ToString().ShouldBe("Removed 'ComparableThing' (value was previously '999')");
         }
 
         [Fact]
@@ -275,7 +289,7 @@
             ex.ShouldBeOfType<ArgumentException>();
             ex.Message.ShouldBe("Cannot ignore 'x => x.ToString()'. Ignore expressions must point to a property.");
         }
-        
+
         [Fact]
         public void Matches_Collections_By_Reference_If_No_Key_Configured()
         {
@@ -564,7 +578,7 @@
 
             var item2 = new
             {
-                Prop = new ClassHolder {Child = new ClassExample("Hello")}
+                Prop = new ClassHolder { Child = new ClassExample("Hello") }
             };
 
             // When
@@ -593,21 +607,25 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.First().ToString().ShouldBe("'Prop.Child.Prop' changed from 'Hello' to ''");
+            comparison.First().ToString().ShouldBe("Removed 'Prop.Child.Prop' (value was previously 'Hello')");
         }
 
         [Fact]
-        public void Compares_Null_Classes_And_Finds_No_Differences()
+        public void Returns_Summary_Of_Differences_When_All_Can_Be_Included()
         {
             // Given
             var item1 = new
             {
-                Prop = default(ClassHolder)
+                Prop1 = "Value 1a",
+                Prop2 = "Value 2a",
+                Prop3 = "Value 3a",
             };
 
             var item2 = new
             {
-                Prop = default(ClassHolder)
+                Prop1 = "Value 1b",
+                Prop2 = "Value 2b",
+                Prop3 = "Value 3b",
             };
 
 
@@ -615,7 +633,76 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.ShouldBeEmpty();
+            comparison.GetShortDescription(3).ShouldBe(
+                "'Prop1' changed from 'Value 1a' to 'Value 1b', " +
+                "'Prop2' changed from 'Value 2a' to 'Value 2b', " +
+                "'Prop3' changed from 'Value 3a' to 'Value 3b'"
+            );
+        }
+
+        [Fact]
+        public void Returns_Summary_Of_Differences_When_All_But_One_Can_Be_Included()
+        {
+            // Given
+            var item1 = new
+            {
+                Prop1 = "Value 1a",
+                Prop2 = "Value 2a",
+                Prop3 = "Value 3a",
+                Prop4 = "Value 4a",
+            };
+
+            var item2 = new
+            {
+                Prop1 = "Value 1b",
+                Prop2 = "Value 2b",
+                Prop3 = "Value 3b",
+                Prop4 = "Value 4b",
+            };
+
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.GetShortDescription(3).ShouldBe(
+                "'Prop1' changed from 'Value 1a' to 'Value 1b', " +
+                "'Prop2' changed from 'Value 2a' to 'Value 2b', " +
+                "'Prop3' changed from 'Value 3a' to 'Value 3b' " +
+                "and 1 other change"
+            );
+        }
+
+        [Fact]
+        public void Returns_Summary_Of_Differences_When_More_Than_One_Are_Not_Included()
+        {
+            // Given
+            var item1 = new
+            {
+                Prop1 = "Value 1a",
+                Prop2 = "Value 2a",
+                Prop3 = "Value 3a",
+                Prop4 = "Value 4a",
+            };
+
+            var item2 = new
+            {
+                Prop1 = "Value 1b",
+                Prop2 = "Value 2b",
+                Prop3 = "Value 3b",
+                Prop4 = "Value 4b",
+            };
+
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.GetShortDescription(2).ShouldBe(
+                "'Prop1' changed from 'Value 1a' to 'Value 1b', " +
+                "'Prop2' changed from 'Value 2a' to 'Value 2b' " +
+                "and 2 other changes"
+            );
         }
     }
 }

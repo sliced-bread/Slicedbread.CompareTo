@@ -28,9 +28,13 @@
         }
         public override string ToString()
         {
-            return OriginalValue is null 
-                ? $"Set '{PropertyName}' to '{NewValue}'" 
-                : $"'{PropertyName}' changed from '{OriginalValue}' to '{NewValue}'";
+            if (OriginalValue is null)
+                return $"Set '{PropertyName}' to '{NewValue}'";
+
+            if (NewValue is null)
+                return $"Removed '{PropertyName}' (value was previously '{OriginalValue}')";
+
+            return $"'{PropertyName}' changed from '{OriginalValue}' to '{NewValue}'";
         }
     }
 }
