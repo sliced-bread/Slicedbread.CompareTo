@@ -18,7 +18,7 @@
             OriginalValue = originalValue;
             NewValue = newValue;
         }
-        
+
         public static IEnumerable<Difference> SingleDifference(Type propertyType, string propertyName, object originalValue, object newValue)
         {
             return new[]
@@ -28,7 +28,9 @@
         }
         public override string ToString()
         {
-            return string.Format("'{0}' changed from '{1}' to '{2}'", PropertyName, OriginalValue, NewValue);
+            return OriginalValue is null 
+                ? $"Set '{PropertyName}' to '{NewValue}'" 
+                : $"'{PropertyName}' changed from '{OriginalValue}' to '{NewValue}'";
         }
     }
 }

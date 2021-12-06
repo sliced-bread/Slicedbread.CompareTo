@@ -83,7 +83,21 @@
 
             result.Count().ShouldBe(1);
         }
-        
+
+        [Fact]
+        public void Returns_Correct_Text_When_Moving_From_From_Null_To_Value()
+        {
+            // Given
+            var item1 = new { Prop = default(int?) };
+            var item2 = new { Prop = new int?(123) };
+
+            // When
+            var comparison = item1.CompareTo(item2);
+
+            // Then
+            comparison.First().ToString().ShouldBe("Set 'Prop' to '123'");
+        }
+
         [Fact]
         public void Does_Not_Read_Properties_Where_CanRead_Is_False()
         {
@@ -120,21 +134,7 @@
             result["Child.IntegerProperty"].NewValue.ShouldBe(123);
             result["Child.IntegerProperty"].PropertyType.ShouldBe(typeof(int));
         }
-
-        [Fact]
-        public void Does_Not_Throw_When_Original_Value_Type_Property_Is_Null()
-        {
-            // Given
-            var item1 = new { Prop = default(int?) };
-            var item2 = new { Prop = new int?(123) };
-
-            // When
-            var comparison = item1.CompareTo(item2);
-
-            // Then
-            comparison.First().ToString().ShouldBe("'Prop' changed from '' to '123'");
-        }
-
+        
         [Fact]
         public void Does_Not_Throw_When_New_Value_Type_Property_Is_Null()
         {
@@ -174,7 +174,7 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.First().ToString().ShouldBe("'ComparableThing' changed from '' to '999'");
+            comparison.First().ToString().ShouldBe("Set 'ComparableThing' to '999'");
         }
 
         [Fact]
@@ -571,7 +571,7 @@
             var comparison = item1.CompareTo(item2);
 
             // Then
-            comparison.First().ToString().ShouldBe("'Prop.Child.Prop' changed from '' to 'Hello'");
+            comparison.First().ToString().ShouldBe("Set 'Prop.Child.Prop' to 'Hello'");
         }
 
         [Fact]
